@@ -3,9 +3,20 @@ void setup()
   size(800,600); 
   frameRate(60);
 }
+//Les Positions
+PVector p = new PVector(400, 300); // Le milieu du cercle
+float pxN1 = 400, pyN1 = 0, pxN2 = 400, pyN2 = 600; //Position de la normale 
+float newX,newY; //Position pour le laser
+float pxr = 0, pyr = 0; //position rayon refracté
+float pxr2 = 0, pyr2 = 0; //position pour rayon reflechi
 
-int mX;
-float pxN1 = 400, pyN1 = 0, pxN2 = 400, pyN2 = 600, newX,newY; //Position normale 
+//Les Calculs
+float coteOp, coteAdj; //Pour le calcul de i
+float n1 = 1.00, n2 = 1.5; // les indices des milieux
+float i, r;
+int intensiteR; //intensite du rayon refracter
+int intensiteR2; // intensiter du rayon reflechi
+
 
 /*class bouton{
   void afficher();
@@ -13,10 +24,8 @@ float pxN1 = 400, pyN1 = 0, pxN2 = 400, pyN2 = 600, newX,newY; //Position normal
 }*/
 void draw()
 {  
-  
   background(40);
   
-  mX = mouseX;
   noStroke();
   fill(150);
   ellipse(400,300,150,150);
@@ -24,10 +33,11 @@ void draw()
   fill(255,255,255,200);
   demiCercle(400,300,145,180,360);
   
-    stroke(0,255,0,20);
-    line(pxN1,pyN1,pxN2,pyN2);
-    stroke(0);
-    fonction(mouseX, mouseY);
+  hud(0,0,15);
+  stroke(0,255,0,20);
+  line(pxN1,pyN1,pxN2,pyN2);
+  stroke(0);
+  afficherRayons();
 }
 
 void demiCercle(float x, float y, float r, float degStart, float degEnd)
@@ -44,47 +54,29 @@ float distanceEntrePoints(float x1, float y1, float x2, float y2)
   float distance = sqrt(pow(x2 - x1,2)+pow(y2-y1,2));
   return distance;
 }
-void fonction(float plx, float ply)
+void afficherRayons()
 { 
-  float n1 = 1.00, n2 = 1.33;
+  dessinerLaser(p.x,p.y,100);
   
-  PVector p = new PVector(400, 300); // Le milieu du cercle
- 
-  // determine the angle
-  float dx = mouseX - p.x;
-  float dy = mouseY - p.y;
-  float angle = atan2(dy, dx);
- 
-  // calculate the end point
-  newX = p.x + cos(angle) * 200;
-  newY = p.y + sin(angle) * 200;
-  
-  stroke(255,0,0);
-  line(p.x,p.y,newX,newY);
-
-  float coteOp;
-  float coteAdj;
   coteOp = abs(mouseX-p.x);
   coteAdj = abs(mouseY-p.y);
   
-  if(mouseY < p.y)
-  {
-     float copie = n1;
-     n1 = n2;
-     n2 = n1; 
-  }
   
-  float i;
+  //Calcul de i
   i = (atan(coteOp/coteAdj));
   float itest = i *180/PI;
   println("i  " + itest);
   
-  float r;
-  r = (asin(i*(n1/n2)));
-  float rtest = r *180/PI;
-  
-  float pxr2=0,pyr2=0; //position pour rayon reflechi
-  float pxr=0,pyr=0; //position rayon refracté
+  if(mouseY < p.y) //Inversion des milieux
+  {
+    //Calcul de r
+    r = asin(sin(i)*(n2/n1));
+  }
+  else {
+    //Calcul de r
+    r = asin(sin(i)*(n1/n2));
+  }
+  //Plein de calculs pour les positions des rayons
   if(mouseX <= 400) {
     pxr = (tan(r)*p.y)+p.x;
     pxr2 = (tan(i)*p.y)+p.x;
@@ -101,8 +93,7 @@ void fonction(float plx, float ply)
      pyr = 0;
      pyr2 = 600;
   }
-  int intensiteR; //intensite du rayon refracter
-  int intensiteR2; // intensiter du rayon reflechi
+  
   if(Float.isNaN(r))
   {
     print(".");
@@ -117,6 +108,42 @@ void fonction(float plx, float ply)
   stroke(255,0,0,intensiteR);
   line(p.x,p.y,pxr,pyr); //rayon refracté
   stroke(255,0,0,intensiteR2);
-  line(p.x,p.y,pxr2,pyr2);
+  line(p.x,p.y,pxr2,pyr2); //rayon reflechi
+  
+}
+void dessinerLaser(float pInitX, float pInitY,float lengthLine)
+{
+  // determine the angle
+  float dx = mouseX - pInitX;
+  float dy = mouseY - pInitY;
+  float angle = atan2(dy, dx);
+ 
+  // calculate the end point
+  newX = pInitX + cos(angle) * lengthLine;
+  newY = pInitY + sin(angle) * lengthLine;
+  
+  stroke(255,0,0);
+  line(pInitX,pInitY,newX,newY);
+}
+void hud(float positionX, float positionY,float size)
+{ //Affichage d'un menu avec simplement 2 coordonnees :
+  // Calcul les emplacements relativement aux 2 coordonnees
+  
+  textSize(size);
+  float pxI = positionX + 10, pyI = positionY + 10 + size; // possitions de i
+  float pxR = positionX + 10, pyR = positionY + 10*2 + size*2; //positions de r
+  float pxNI = positionX + 10, pyNI = positionY + 10*3 + size*3; //positions de n1
+  float pxNR = positionX + 10, pyNR = positionY + 10*4 + size*4; //positions de n2
+  
+  fill(0);
+  rect(positionX,positionY,100,130);
+  fill(255);
+  text("i : " + Math.floor((i*180/PI)*100)/100,pxI,pyI);
+  text("r : " + Math.floor((r*180/PI)*100)/100,pxR,pyR);
+  text("n1 : " + n1,pxNI,pyNI);
+  text("n2 : " + n2, pxNR, pyNR);
+  
+  
+  
 }
 
