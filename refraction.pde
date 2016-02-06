@@ -13,6 +13,9 @@ float pxN1 = 400, pyN1 = 0, pxN2 = 400, pyN2 = 600; //Position de la normale
 float newX,newY; //Position pour le laser
 float pxr = 0, pyr = 0; //position rayon refracté
 float pxr2 = 0, pyr2 = 0; //position pour rayon reflechi
+float pxBox = 10, pyBox = 10; // position du hud
+float wBox = 100, hBox = 130;
+float difx, dify;
 
 //Les Calculs
 float coteOp, coteAdj; //Pour le calcul de i
@@ -21,15 +24,17 @@ float i, r;
 int intensiteR; //intensite du rayon refracter
 int intensiteR2; // intensiter du rayon reflechi
 
+boolean locked; //pour deplacer l'hud
+
 class Bouton{  
   boolean afficher(float x,float y, float longueur, float largeur, String texte){
     if(mouseX < x+longueur && mouseX > x && mouseY <  y+largeur && mouseY > y){
-       fill(255,0,0);
+       fill(0);
     }
     else {
-      fill(100,0,0,50);    
+      fill(100);    
     }
-    stroke(255,0,0,255);
+    stroke(0);
     rect(x,y,longueur,largeur);
     fill(255);
     textAlign(CENTER);
@@ -59,7 +64,7 @@ void draw()
   fill(255,255,255,200);
   demiCercle(400,300,145,180,360);
   
-  hud(0,0,15); 
+  hud(15); 
   stroke(0,255,0,20);
   line(pxN1,pyN1,pxN2,pyN2);
   stroke(0);
@@ -151,22 +156,47 @@ void dessinerLaser(float pInitX, float pInitY,float lengthLine)
   
   line(pInitX,pInitY,newX,newY);
 }
-void hud(float positionX, float positionY,float size)
+void hud(float size)
 { //Affichage d'un menu avec simplement 2 coordonnees :
   // Calcul les emplacements relativement aux 2 coordonnees
   
   textSize(size);
-  float pxI = positionX + 10, pyI = positionY + 10 + size; // possitions de i
-  float pxR = positionX + 10, pyR = positionY + 10*2 + size*2; //positions de r
-  float pxNI = positionX + 10, pyNI = positionY + 10*3 + size*3; //positions de n1
-  float pxNR = positionX + 10, pyNR = positionY + 10*4 + size*4; //positions de n2
+  float pxI = pxBox + 10, pyI = pyBox + 10 + size; // possitions de i
+  float pxR = pxBox + 10, pyR = pyBox + 10*2 + size*2; //positions de r
+  float pxNI = pxBox + 10, pyNI = pyBox + 10*3 + size*3; //positions de n1
+  float pxNR = pxBox + 10, pyNR = pyBox + 10*4 + size*4; //positions de n2
   
   fill(0);
-  rect(positionX,positionY,100,130);
+  rect(pxBox,pyBox,wBox,hBox);
   fill(255);
   text("i : " + Math.floor((i*180/PI)*100)/100,pxI,pyI);
   text("r : " + Math.floor((r*180/PI)*100)/100,pxR,pyR);
   text("n1 : " + n1,pxNI,pyNI);
-  text("n2 : " + n2, pxNR, pyNR); 
+  text("n2 : " + n2, pxNR, pyNR);
+  
+    if(mouseX < pxBox + wBox && mouseX > pxBox && mouseY > pyBox && mouseY < pyBox + hBox)
+    {
+       if(mousePressed) {
+         locked = true;
+         difx = mouseX-pxBox;
+         dify = mouseY-pyBox;
+       }
+       else
+      {
+         locked = false;   
+      }  
+    }
+  if(pxBox < 0) pxBox = 0;
+  if(pxBox + wBox > width) pxBox = width - wBox;
+  if(pyBox < 0) pyBox = 0;
+  if(pyBox + hBox > height) pyBox = width - hBox;
 }
-
+void mouseDragged() {
+  if(locked) {
+     pxBox = mouseX-difx;
+     pyBox = mouseY-dify;
+  } 
+}
+void mouseReleased() {
+   locked = false; 
+}
