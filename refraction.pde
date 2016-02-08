@@ -1,11 +1,12 @@
-Bouton nEau,nAir;
+Bouton n;
+Bouton couleur;
 
 void setup()
 {
   size(800,600); 
-  frameRate(60);
-  nEau = new Bouton();
-  nAir = new Bouton();
+  frameRate(120);
+  n = new Bouton();
+  couleur = new Bouton();
 }
 //Les Positions
 PVector p = new PVector(400, 300); // Le milieu du cercle
@@ -24,7 +25,9 @@ float i, r;
 int intensiteR; //intensite du rayon refracter
 int intensiteR2; // intensiter du rayon reflechi
 
-boolean locked; //pour deplacer l'hud
+int red = 255, green, blue;
+
+boolean locked,block = false, info = false; //pour deplacer l'hud
 
 class Bouton{  
   boolean afficher(float x,float y, float longueur, float largeur, String texte){
@@ -38,7 +41,7 @@ class Bouton{
     rect(x,y,longueur,largeur);
     fill(255);
     textAlign(CENTER);
-    text(texte,x+(longueur/2),y+(largeur/2));
+    text(texte,x+(longueur/2),y+(largeur/1.6));
     textAlign(0);
     
     if(mousePressed == true){
@@ -54,9 +57,26 @@ void draw()
 {
  background(40);
   
- if(nAir.afficher(10,200,50,40,"Air")) n1 = 1.00;
- if(nEau.afficher(10,250,50,40,"Eau")) n1 = 1.33;
-  
+   if(n.afficher(10,200,110,40,"n1 = Air")) n1 = 1.00;
+   if(n.afficher(10,250,110,40,"n1 = Eau")) n1 = 1.33;
+   if(n.afficher(10,300,110,40,"n2 = Diamant")) n2 = 2.4175;
+   if(n.afficher(10,350,110,40,"n2 = Plexi")) n2 = 1.5;
+   if(couleur.afficher(width-100,200,80,40, "Rouge")){
+     red = 255;
+     blue = 0;
+     green = 0;
+   }
+   if(couleur.afficher(width-100,250,80,40, "Bleu")){
+     red = 0;
+     blue = 255;
+     green = 0;
+   }
+   if(couleur.afficher(width-100,300,80,40, "Vert")){
+     red = 0;
+     blue = 0;
+     green = 255;
+   }   
+   
   noStroke();
   fill(150);
   ellipse(400,300,150,150);
@@ -64,11 +84,55 @@ void draw()
   fill(255,255,255,200);
   demiCercle(400,300,145,180,360);
   
+  noCursor();
+  rect(mouseX-2.5, mouseY-2.5, 5,5);
+  if(block)
+  { 
+     text("BLOCK", width/2-20, height-50);
+  }
   hud(15); 
+  
   stroke(0,255,0,20);
   line(pxN1,pyN1,pxN2,pyN2);
   stroke(0);
   afficherRayons();
+  
+  fill(255,255,255,100);
+  if(info){
+    textSize(20);
+    textAlign(CENTER,CENTER);
+    rect(10,10,width-20,height-20);
+    fill(0);
+    text("INFORMATIONS", width/2, height/5);
+    textSize(15);
+    text("Bougez la souris pour déplacer le rayon", width/2, height/5+30);
+    text("Vous pouvez déplacer le menu d'affichage avec la souris...", width/2, height/5+50);
+    text("Appuyez sur 'b' pour mettre la simulation en pause", width/2, height/5+70);
+  }
+  else
+  {
+    textAlign(CENTER,CENTER);
+    text("Appuyez sur 'i' pour afficher l'aide", width/2, 15); 
+  }
+}
+void keyReleased() {
+  if(key=='b' && block == false) {
+    block = true;
+  }
+  else if(key=='b' && block == true){
+    mouseX = int(newX);
+    mouseY = int(newY);
+  
+    block = false;
+  } 
+  if(key=='i' && info == false){
+   info = true;
+   block = true;
+  }
+  else if(key == 'i' && info == true){
+    info = false;
+    block = false;
+  }
 }
 void demiCercle(float x, float y, float r, float degStart, float degEnd)
 {
@@ -88,13 +152,13 @@ void afficherRayons()
 { 
   dessinerLaser(p.x,p.y,150);
   
-  coteOp = abs(mouseX-p.x);
-  coteAdj = abs(mouseY-p.y);
+  coteOp = abs(newX-p.x);
+  coteAdj = abs(newY-p.y);
   
   
   //Calcul de i
   i = (atan(coteOp/coteAdj));
-  if(mouseY < p.y) //Inversion des milieux
+  if(newY < p.y) //Inversion des milieux
   {
     //Calcul de r
     r = asin(sin(i)*(n2/n1));
@@ -104,56 +168,53 @@ void afficherRayons()
     r = asin(sin(i)*(n1/n2));
   }
   //Plein de calculs pour les positions des rayons
-  if(mouseX <= 400) {
-    pxr = (tan(r)*p.y)+p.x;
-    pxr2 = (tan(i)*p.y)+p.x;
-  }
-  else if(mouseX > 400) {
-    pxr = p.x-(tan(r)*p.y);
-    pxr2 = p.x-(tan(i)*300);
-  }
-  if(mouseY < p.y) {
-     pyr = 600;
-     pyr2 = 0;
-  }
-  else {
-     pyr = 0;
-     pyr2 = 600;
-  }
+    if(newX <= 400) {
+      pxr = (tan(r)*p.y)+p.x;
+      pxr2 = (tan(i)*p.y)+p.x;
+    }
+    else if(newX > 400) {
+      pxr = p.x-(tan(r)*p.y);
+      pxr2 = p.x-(tan(i)*300);
+    }
+    if(newY < p.y) {
+       pyr = 600;
+       pyr2 = 0;
+    }
+    else {
+       pyr = 0;
+       pyr2 = 600;
+    }
   
-  if(Float.isNaN(r))
-  {
-    intensiteR2 = 255;
-  }
-  else
-  {
-    intensiteR2 = int(i*180/PI+60); //Calcul chiant et degueu 
-  }
-  intensiteR = int(255-r*180/PI);
-  
-  stroke(255,0,0,intensiteR);
+    if(Float.isNaN(r))
+    {
+      intensiteR2 = 255;
+    }
+    else
+    {
+      intensiteR2 = int(i*180/PI+60); //Calcul chiant et degueu 
+    }
+    intensiteR = int(255-r*180/PI);
+
+  stroke(red,green,blue,intensiteR);
   line(p.x,p.y,pxr,pyr); //rayon refracté
-  stroke(255,0,0,intensiteR2);
+  stroke(red,green,blue,intensiteR2);
   line(p.x,p.y,pxr2,pyr2); //rayon reflechi
   
 }
 void dessinerLaser(float pInitX, float pInitY,float lengthLine)
 {
-  // determine the angle
-  float dx = mouseX - pInitX;
-  float dy = mouseY - pInitY;
-  float angle = atan2(dy, dx);
-  
-  // calculate the end point
-  newX = pInitX + cos(angle) * lengthLine;
-  newY = pInitY + sin(angle) * lengthLine;
-  
-  stroke(255,0,0);
-  
-  if(mouseX < p.x+10 && mouseX > p.x-10){
-     newX = pInitX;
+  if(block == false){
+    // determine the angle
+    float dx = mouseX - pInitX;
+    float dy = mouseY - pInitY;
+    float angle = atan2(dy, dx);
+    
+    // calculate the end point
+    newX = pInitX + cos(angle) * lengthLine;
+    newY = pInitY + sin(angle) * lengthLine;
   }
   
+  stroke(red,green,blue);
   line(pInitX,pInitY,newX,newY);
 }
 void hud(float size)
@@ -189,7 +250,7 @@ void hud(float size)
   if(pxBox < 0) pxBox = 0;
   if(pxBox + wBox > width) pxBox = width - wBox;
   if(pyBox < 0) pyBox = 0;
-  if(pyBox + hBox > height) pyBox = width - hBox;
+  if(pyBox + hBox > height) pyBox = height - hBox;
 }
 void mouseDragged() {
   if(locked) {
