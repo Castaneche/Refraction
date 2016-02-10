@@ -97,7 +97,7 @@ void draw()
   stroke(0);
   afficherRayons();
   
-  fill(255,255,255,100);
+  fill(255,255,255,130);
   if(info){
     textSize(20);
     textAlign(CENTER,CENTER);
@@ -105,9 +105,16 @@ void draw()
     fill(0);
     text("INFORMATIONS", width/2, height/5);
     textSize(15);
-    text("Bougez la souris pour déplacer le rayon", width/2, height/5+30);
-    text("Vous pouvez déplacer le menu d'affichage avec la souris...", width/2, height/5+50);
-    text("Appuyez sur 'b' pour mettre la simulation en pause", width/2, height/5+70);
+    text("Bougez la souris pour déplacer le rayon.", width/2, height/5+30);
+    text("Vous pouvez déplacer le menu d'affichage avec la souris.", width/2, height/5+50);
+    text("Appuyez sur 'b' pour mettre la simulation en pause.", width/2, height/5+70);
+    text("Le menu d'affichage contient les informations suivantes :", width/2, height/5+100);
+    text("i -> angle d'incidence", width/2, height/5+120);
+    text("r -> angle de réfraction", width/2, height/5+140);
+    text("n1 -> indice de milieu 1 (partie noire)", width/2, height/5+160);
+    text("n2 -> indice de milieu 2 (hémicylindre)", width/2, height/5+180);
+    text("Note: le rayon ne se réfractera pas en fonction de la longueur d'onde (fonction non-implémentée).", width/2, height/5+300);
+    text("Appuyez sur 'i' pour quitter le menu d'informations.", width/2, height/5+350);
   }
   else
   {
@@ -115,7 +122,7 @@ void draw()
     text("Appuyez sur 'i' pour afficher l'aide", width/2, 15); 
   }
 }
-void keyReleased() {
+void keyPressed() {
   if(key=='b' && block == false) {
     block = true;
   }
@@ -129,7 +136,7 @@ void keyReleased() {
    info = true;
    block = true;
   }
-  else if(key == 'i' && info == true){
+  else if(key=='i' && info == true){
     info = false;
     block = false;
   }
@@ -222,10 +229,10 @@ void hud(float size)
   // Calcul les emplacements relativement aux 2 coordonnees
   
   textSize(size);
-  float pxI = pxBox + 10, pyI = pyBox + 10 + size; // possitions de i
-  float pxR = pxBox + 10, pyR = pyBox + 10*2 + size*2; //positions de r
-  float pxNI = pxBox + 10, pyNI = pyBox + 10*3 + size*3; //positions de n1
-  float pxNR = pxBox + 10, pyNR = pyBox + 10*4 + size*4; //positions de n2
+  float pxI = pxBox + 10, pyI = pyBox + 10 + size; // position de i
+  float pxR = pxBox + 10, pyR = pyBox + 10*2 + size*2; //position de r
+  float pxNI = pxBox + 10, pyNI = pyBox + 10*3 + size*3; //position de n1
+  float pxNR = pxBox + 10, pyNR = pyBox + 10*4 + size*4; //position de n2
   
   fill(0);
   rect(pxBox,pyBox,wBox,hBox);
